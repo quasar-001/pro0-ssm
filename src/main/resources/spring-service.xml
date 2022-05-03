@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/aop https://www.springframework.org/schema/aop/spring-aop.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <context:component-scan base-package="ssm.service"/>
+
+    <!--事务控制配置-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!--控制数据源-->
+        <property name="dataSource" ref="poolDataSource"/>
+    </bean>
+
+    <!--开启基于注解的事务-->
+    <aop:config>
+        <!--切入点表达式：实际被真正增强的方法-->
+        <aop:pointcut id="txPoint" expression="execution(* ssm.service..*(..))"/>
+        <!--配置事务增强(通知)和那些方法可以被通知-->
+        <aop:advisor advice-ref="txAdvisor" pointcut-ref="txPoint"/>
+    </aop:config>
+    <!--增强事务通知：实际被增强的部分-->
+    <tx:advice id="txAdvisor" transaction-manager="transactionManager">
+        <tx:attributes>
+            <!--所有方法都是事务方法-->
+            <tx:method name="*"/>
+            <!--以get开始的所有方法都是事务方法-->
+            <tx:method name="get*"/>
+        </tx:attributes>
+    </tx:advice>
+
+</beans>
